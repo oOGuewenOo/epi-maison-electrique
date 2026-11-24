@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Maison électrique – EPI NF C 15-100</title>
+<style>
+:root{
+  --bg:#eef2f6;--panel:#ffffff;--ink:#1d2733;--muted:#5d6b7a;--line:#d8e0e8;
+  --brand:#2563eb;--brand-d:#1e4fc0;--ok:#16a34a;--okbg:#e8f7ee;--bad:#dc2626;--badbg:#fdecec;--warn:#d97706;--warnbg:#fff4e0;--shop:#7c3aed;--shopbg:#f1ebff;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);display:flex;flex-direction:column;overflow:hidden}
+header{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:8px 16px;background:#14213d;color:#fff}
+header h1{font-size:18px;margin:0;font-weight:700;letter-spacing:.2px}
+header h1 small{font-weight:400;opacity:.7;font-size:12px;margin-left:6px}
+.steps{display:flex;gap:8px;margin-left:auto;flex-wrap:wrap}
+.chip{border:1px solid rgba(255,255,255,.3);background:transparent;color:#fff;border-radius:999px;padding:6px 12px;font-size:13px;cursor:pointer;font-family:inherit}
+.chip.active{background:#fff;color:#14213d;font-weight:700}
+.chip:disabled{opacity:.45;cursor:not-allowed}
+.chip .n{opacity:.85;margin-left:4px}
+.btn{border:0;border-radius:8px;padding:9px 14px;font-size:14px;font-weight:600;cursor:pointer;background:var(--brand);color:#fff;font-family:inherit}
+.btn:hover{background:var(--brand-d)}
+.btn.ghost{background:#e6ecf4;color:var(--ink)}
+.btn.ghost:hover{background:#d6dfec}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.badge{background:#f59e0b;color:#14213d;border-radius:999px;padding:0 7px;margin-left:6px;font-size:12px;font-weight:700}
+
+main{flex:1;min-height:0;display:grid;grid-template-columns:var(--l,0px) 1fr var(--r,0px);transition:grid-template-columns .35s ease}
+main.left-open{--l:min(360px,30vw)}
+main.right-open{--r:min(430px,34vw)}
+#stage{position:relative;min-width:0;min-height:0;overflow:hidden;background:linear-gradient(#cfe3f7,#eaf2f9)}
+#stage canvas{display:block;width:100%;height:100%;cursor:pointer}
+#hint{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);background:rgba(20,33,61,.88);color:#fff;padding:9px 16px;border-radius:999px;font-size:14px;pointer-events:none;white-space:nowrap;max-width:92%;overflow:hidden;text-overflow:ellipsis}
+#panelBtns{position:absolute;inset:0;display:none;pointer-events:none;z-index:5}
+#panelBtns .btn{pointer-events:auto;position:absolute;top:42%;max-width:130px;white-space:normal;text-align:center;line-height:1.25;
+  background:#f59e0b;color:#14213d;font-size:15px;font-weight:800;padding:14px 12px;border:3px solid #fff;
+  box-shadow:0 0 0 0 rgba(245,158,11,.7),0 4px 14px rgba(0,0,0,.3);animation:pulse 1.6s infinite}
+#panelBtns .btn:hover{background:#fbbf24}
+#togL{left:0;border-radius:0 14px 14px 0}
+#togR{right:0;border-radius:14px 0 0 14px}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(245,158,11,.75),0 4px 14px rgba(0,0,0,.3)}70%{box-shadow:0 0 0 14px rgba(245,158,11,0),0 4px 14px rgba(0,0,0,.3)}100%{box-shadow:0 0 0 0 rgba(245,158,11,0),0 4px 14px rgba(0,0,0,.3)}}
+#legend{position:absolute;left:12px;top:12px;background:rgba(255,255,255,.9);border-radius:10px;padding:8px 12px;font-size:12px;color:var(--muted);line-height:1.6}
+.side{background:var(--panel);overflow:hidden;min-width:0}
+.side>.inner{height:100%;overflow-y:auto;padding:16px 16px 24px}
+#left{border-right:1px solid var(--line)}
+#right{border-left:1px solid var(--line)}
+.side h2{margin:0 0 4px;font-size:19px}
+.side .sub{color:var(--muted);font-size:13px;margin-bottom:12px}
+.norm{border-left:4px solid var(--brand);background:#f3f7ff;border-radius:6px;padding:9px 12px;margin:10px 0;font-size:14px;line-height:1.45}
+.norm b{display:block;margin-bottom:2px}
+.norm.red{border-color:var(--bad);background:var(--badbg)}
+.tip{background:var(--warnbg);border-left:4px solid var(--warn);border-radius:6px;padding:9px 12px;margin:12px 0;font-size:13.5px;line-height:1.45}
+.foot{color:var(--muted);font-size:12px;margin-top:14px}
+
+.card{display:flex;gap:10px;align-items:flex-start;border:2px solid var(--line);border-radius:10px;padding:10px 12px;margin:8px 0;cursor:pointer;background:#fff;transition:border-color .15s,background .15s;width:100%;text-align:left;font-family:inherit;font-size:14px;color:var(--ink)}
+.card:hover{border-color:#9db8ef}
+.card .box{flex:none;width:22px;height:22px;border:2px solid #98a6b6;border-radius:6px;margin-top:1px;display:grid;place-items:center;font-size:15px;color:#fff;background:#fff}
+.card.sel{border-color:var(--brand);background:#f0f5ff}
+.card.sel .box{background:var(--brand);border-color:var(--brand)}
+.card.good{border-color:var(--ok);background:var(--okbg)}
+.card.good .box{background:var(--ok);border-color:var(--ok)}
+.card.bad{border-color:var(--bad);background:var(--badbg)}
+.card.bad .box{background:var(--bad);border-color:var(--bad)}
+.card.locked{cursor:default}
+.card.trap{opacity:.6;cursor:default}
+.card b{display:block}
+.card .d{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
+.card .why{display:block;font-size:12.5px;margin-top:6px;font-weight:500}
+.banner{border-radius:8px;padding:10px 12px;margin:10px 0;font-size:14px;font-weight:600}
+.banner.ok{background:var(--okbg);color:#0f6b31}
+.banner.ko{background:var(--badbg);color:#9b1c1c}
+.banner.info{background:#eaf1ff;color:#1d3f9a}
+.actions{position:sticky;bottom:-24px;background:linear-gradient(transparent,#fff 28%);padding:14px 0 10px;margin-top:6px}
+.actions .btn{width:100%;padding:12px}
+
+.app{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:12px 0;background:#fafcfe}
+.app h3{margin:0 0 8px;font-size:16px}
+.opt{display:block;width:100%;text-align:left;font-family:inherit;border:2px solid var(--line);border-radius:10px;padding:9px 11px;margin:7px 0;background:#fff;cursor:pointer;color:var(--ink);font-size:14px}
+.opt:hover{border-color:#9db8ef}
+.opt.sel{border-color:var(--brand);background:#f0f5ff}
+.opt.good{border-color:var(--ok);background:var(--okbg);cursor:default}
+.opt.bad{border-color:var(--bad);background:var(--badbg);opacity:.75;cursor:not-allowed}
+.opt .top{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.opt .name{font-weight:700}
+.opt .pw{font-weight:800;color:#b45309;white-space:nowrap}
+.opt .meta{color:var(--muted);font-size:12.5px;margin-top:2px}
+.opt .pitch{background:var(--shopbg);color:#4c1d95;border-radius:8px;padding:6px 9px;margin-top:6px;font-size:13px;font-style:italic}
+.opt .res{font-size:12.5px;margin-top:6px;font-weight:600}
+
+.overlay{position:fixed;inset:0;background:rgba(10,20,40,.55);display:none;place-items:center;z-index:50;padding:16px}
+.overlay.show{display:grid}
+.modal{background:#fff;border-radius:16px;max-width:820px;width:100%;max-height:90vh;overflow:auto;padding:22px 24px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.modal h2{margin:0 0 8px}
+.modal .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+th{background:#f3f6fa;position:sticky;top:0}
+td.num,th.num{text-align:right;white-space:nowrap}
+tr.room td{background:#e9effa;font-weight:700}
+.kpis{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
+.kpi{flex:1 1 130px;background:#f3f7ff;border-radius:10px;padding:10px 12px}
+.kpi b{display:block;font-size:20px}
+.kpi span{font-size:12px;color:var(--muted)}
+#toast{position:fixed;left:50%;top:70px;transform:translateX(-50%) translateY(-20px);background:#14213d;color:#fff;padding:10px 18px;border-radius:10px;opacity:0;transition:.3s;z-index:60;pointer-events:none;font-size:14px}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ===== Étape 3 : compteur + tableau électrique ===== */
+#view3{display:none;flex:1;min-height:0;overflow:auto;padding:18px;gap:22px;grid-template-columns:minmax(300px,380px) 1fr;align-items:start;background:linear-gradient(#e8eef5,#dfe6ee)}
+#view3 h2{margin:0 0 4px;font-size:18px}
+#view3 .help{color:var(--muted);font-size:13px;margin:0 0 12px;line-height:1.45}
+.meter{background:linear-gradient(#f6f7f9,#d6dbe2);border-radius:22px;padding:16px 18px 18px;box-shadow:0 10px 28px rgba(0,0,0,.25),inset 0 2px 0 #fff;border:1px solid #b9c0ca;max-width:380px}
+.mtop{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
+.mlogo{font-size:28px;font-weight:800;font-style:italic;color:#6cb33f;letter-spacing:.5px}
+.mtag{font-size:11px;color:#59636f;text-transform:uppercase;letter-spacing:.6px}
+.lcd{background:#c8d3a6;border:3px solid #8e9a74;border-radius:10px;padding:10px 12px;color:#1c2813;box-shadow:inset 0 3px 8px rgba(0,0,0,.25);font-family:"Courier New",Consolas,monospace}
+.lcd-top{display:flex;justify-content:space-between;font-size:12px;font-weight:700;letter-spacing:.5px;opacity:.85}
+.lcd-main{display:flex;align-items:baseline;justify-content:flex-end;gap:8px;margin:10px 0 6px}
+.digits{position:relative;display:inline-block;font-size:38px;font-weight:700;letter-spacing:1px;line-height:1.1}
+.digits .ghost{position:absolute;right:0;top:0;opacity:.11}
+.digits .val{position:relative}
+.lcd-unit{font-size:18px;font-weight:700}
+.lcd-sub{display:flex;justify-content:space-between;font-size:12px;opacity:.85;border-top:1px solid rgba(28,40,19,.3);padding-top:5px}
+.mctl{display:flex;align-items:center;gap:12px;margin-top:14px}
+.mbtn{width:44px;height:30px;border-radius:8px;border:1px solid #9aa3af;background:linear-gradient(#fff,#d5dae1);font-size:20px;font-weight:800;color:#3b4552;cursor:pointer;box-shadow:0 2px 0 #aab2bd}
+.mbtn:active{transform:translateY(2px);box-shadow:none}
+.mleds{margin-left:auto;display:flex;gap:14px;font-size:10px;text-transform:uppercase;color:#59636f;letter-spacing:.4px}
+.mleds span{display:flex;flex-direction:column;align-items:center;gap:4px}
+.led{width:12px;height:12px;border-radius:50%;background:#7b8590;box-shadow:inset 0 1px 2px rgba(0,0,0,.5)}
+.led.conso.on{background:#3ddc5b;box-shadow:0 0 8px #3ddc5b;animation:blink 1s steps(1) infinite}
+.led.comm{background:#f0a21a;box-shadow:0 0 6px #f0a21a}
+@keyframes blink{0%{opacity:1}50%{opacity:.15}100%{opacity:1}}
+.mfoot{margin-top:12px;font-size:11px;color:#59636f;display:flex;justify-content:space-between}
+.sim{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap}
+.board{background:#c9ced6;border:2px solid #9aa2ad;border-radius:10px;padding:8px;box-shadow:0 6px 18px rgba(0,0,0,.2);max-width:560px}
+.board-title{background:#2b2f36;color:#fff;font-weight:700;letter-spacing:.8px;border-radius:5px;padding:4px 9px;font-size:11px;margin-bottom:6px;display:flex;justify-content:space-between}
+.rail{background:#3a3f48;border-radius:6px;padding:6px;margin-top:6px}
+.rail h3{margin:0 0 5px;color:#e5e9ef;font-size:11px;font-weight:700}
+.rail h3 small{font-weight:400;opacity:.75}
+.brks{display:flex;flex-wrap:wrap;gap:5px}
+.brk{width:80px;border:0;border-radius:5px;background:#eef0f3;padding:4px 3px 4px;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;font-family:inherit;color:#1d2733;box-shadow:0 2px 0 #9aa2ad;text-align:center}
+.brk:hover{background:#fff}
+.brk .sw{width:30px;height:38px;background:#2b2f36;border-radius:4px;position:relative;box-shadow:inset 0 2px 4px rgba(0,0,0,.6)}
+.brk .sw i{position:absolute;left:3px;right:3px;height:17px;border-radius:3px;background:#8b95a1;transition:top .15s,background .15s;top:18px}
+.brk.on .sw i{top:3px;background:#22c55e}
+.brk.on.nopow .sw i{background:#f59e0b}
+.brk b{font-size:9.5px;line-height:1.15;min-height:24px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.brk small{font-size:9.5px;color:#59636f}
+.brk .w{font-size:9.5px;font-weight:700;color:#8a94a0}
+.brk.live .w{color:#15803d}
+.brk .tag{font-size:8px;font-weight:700;background:#e0e7ff;color:#3730a3;border-radius:999px;padding:0 5px}
+.brk.main{width:130px}
+@media (max-width:860px){#view3{grid-template-columns:1fr}}
+@media (max-width:860px){
+  main{display:flex;flex-direction:column;overflow-y:auto}
+  main.left-open,main.right-open{--l:0;--r:0}
+  #stage{flex:none;height:46vh}
+  .side{display:none;flex:none}
+  main.left-open #left,main.right-open #right{display:block}
+  .side>.inner{height:auto;overflow:visible}
+  .steps{margin-left:0}
+  #legend{display:none}
+}
+@media print{
+  body *{visibility:hidden}
+  #listOverlay,#listOverlay *{visibility:visible}
+  #listOverlay{position:absolute;inset:0;background:#fff;display:block}
+  .modal{box-shadow:none;max-height:none}
+  .row{display:none!important}
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>🏠 Ma maison électrique<small>EPI – norme NF C 15-100</small></h1>
+  <div class="steps">
+    <button class="chip" id="chip1">① Normes &amp; installation <span class="n" id="n1"></span></button>
+    <button class="chip" id="chip2">② Choix des appareils <span class="n" id="n2"></span></button>
+    <button class="chip" id="chip3">③ Compteur et tableau</button>
+    <button class="btn" id="btnList" style="padding:6px 12px">📋 Ma liste<span class="badge" id="listCount">0</span></button>
+    <button class="chip" id="btnReset" title="Tout effacer et recommencer">↺ Recommencer</button>
+  </div>
+</header>
+
+<main id="main">
+  <aside class="side" id="left"><div class="inner" id="leftInner"></div></aside>
+  <section id="stage">
+    <div id="legend">🖱️ Glisser = tourner · Molette = zoom · Clic droit = déplacer<br>Clic sur une pièce = ouvrir l'exercice</div>
+    <div id="panelBtns"><button class="btn ghost" id="togL"></button><button class="btn ghost" id="togR"></button></div>
+    <div id="hint"></div>
+  </section>
+  <aside class="side" id="right"><div class="inner" id="rightInner"></div></aside>
+</main>
+
+<section id="view3"></section>
+
+<div class="overlay" id="listOverlay"><div class="modal" id="listModal"></div></div>
+<div class="overlay" id="msgOverlay"><div class="modal" id="msgModal" style="max-width:560px"></div></div>
+<div id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+/* =====================================================================
+   DONNÉES PÉDAGOGIQUES
+   (1 unité 3D = 1 m ; la maison fait 10 m x 8 m)
+   ===================================================================== */
+const KWH_PRICE = 0.25;           // € / kWh
+const SUBSCRIPTION_W = 9000;      // abonnement 9 kVA
+
+// Option d'installation : [estBonne, libellé, détail, explication]
+// Appareil : choix = [nom, puissance W, étiquette, prix €, argument commercial, estLeBonChoix, explication]
+const ROOMS = [
+ {
+  id:'salon', name:'Salon / séjour', icon:'🛋️', x:0,z:4,w:6,d:4, color:0xe9d8b4, sockets:6,
+  norms:[
+   ['','Dans le séjour, il faut une prise de courant (avec terre) pour chaque tranche de 4 m², avec un minimum de 5 prises, posées entre 5 cm et 1,30 m du sol. On ajoute une prise réseau (RJ45), une prise TV et un point lumineux au plafond.']
+  ],
+  energyTip:'<b>Chauffage :</b> environ 60 W par m². <b>Éclairage :</b> environ 1,5 W par m².',
+  options:[
+   [1,'1 point lumineux au plafond','Éclairage du salon','Le séjour a au moins un point lumineux au plafond.'],
+   [1,'1 prise RJ45 (communication)','Box internet / réseau','La prise de communication est obligatoire.'],
+   [1,'1 prise TV (coaxiale)','Antenne / TNT','Prévue dans le séjour par la norme.'],
+   [0,'Prise pour l’éclairage','Pour économiser du câble','L’éclairage se raccorde à un point lumineux au plafond, pas à une prise.'],
+   [0,'Multiprise','Pour économiser des prises','Une multiprise ne remplace pas de vraies prises : elle peut chauffer et provoquer un incendie.']
+  ],
+  furn:[ // [w,h,d,x,z,color,yBase]
+   [2.2,.5,.9,1.6,7.3,0x5b7fa6,0],[2.2,.5,.25,1.6,7.78,0x4a6a8f,.45],
+   [1.1,.35,.6,1.8,5.9,0x8b5e3c,0],[.5,.45,1.9,.4,6,0x7a5230,0],
+   [2.4,.02,1.6,1.8,6.1,0xc9544d,0]
+  ],
+  appliances:[
+   {id:'tv',label:'Téléviseur',icon:'📺',hours:1100,size:[.1,.6,1.0],pos:[.4,.45,6],color:0x111111,choices:[
+     ['TV LED 43" 4K',60,'E',390,'« Image nette et fluide, légère et facile à installer. »',1,'60 W : c’est la plus faible puissance de toutes les télévisions proposées.'],
+     ['TV LED 43" 4K « Bright »',110,'F',399,'« Écran ultra lumineux, parfait même en plein jour ! »',0,'110 W : presque le double de la puissance de la télévision la plus économe, pour un prix quasi identique.'],
+     ['TV LED 55" 4K',80,'E',679,'« Grande diagonale et image douce pour toute la famille. »',0,'80 W : moins que d’autres modèles, mais une télévision proposée consomme encore moins.'],
+     ['TV QLED 55" 4K',135,'F',690,'« Plus grande, plus lumineuse : vos matchs comme au stade ! »',0,'135 W : plus de deux fois la puissance de la télévision la plus économe.'],
+     ['TV OLED 65" 4K',120,'E',1299,'« Des noirs parfaits et une image de cinéma dans votre salon. »',0,'120 W : le double de la puissance de la télévision la plus économe.'],
+     ['TV OLED 65" 4K « Cinéma »',190,'F',1290,'« Le mode Cinéma pousse l’image à son maximum de luminosité ! »',0,'190 W : plus de trois fois la puissance de la télévision la plus économe, pour un prix quasi identique.']]},
+   {id:'chauf',label:'Chauffage',icon:'🔥',hours:700,size:[1.0,.5,.12],pos:[3,.1,4.2],color:0xf4f4f4,choices:[
+     ['Radiateur soufflant 2 400 W',2400,'-',39,'« Chauffe en 30 secondes ! Idéal pour un coup de froid. »',0,'Chauffage d’appoint, sans thermostat fiable : il consomme énormément pour un chauffage principal.'],
+     ['Radiateur à inertie programmable 1 500 W',1500,'A',299,'« Chaleur douce, thermostat, programmation et détecteur de fenêtre ouverte. »',1,'Puissance adaptée à la taille du salon et régulation qui évite le gaspillage.'],
+     ['Convecteur 2 500 W sans thermostat',2500,'-',59,'« Le plus puissant : chauffe tout le salon d’un coup ! »',0,'2 500 W en continu et sans régulation : surconsommation assurée.']]},
+   {id:'lum',label:'Éclairage',icon:'💡',hours:1000,size:[.25,1.6,.25],pos:[5.3,0,7.3],color:0xffd966,choices:[
+     ['6 spots halogènes 50 W',300,'D',89,'« Une lumière chaude et éclatante qui sublime la pièce ! »',0,'300 W : l’halogène chauffe plus qu’il n’éclaire.'],
+     ['Luminaires LED 4 × 8 W',32,'A',65,'« Lumière douce, 15 000 h de durée de vie. »',1,'32 W pour un éclairage équivalent : 10 fois moins d’énergie.'],
+     ['Lustre cristal 8 × 40 W incandescence',320,'F',249,'« L’élégance d’un lustre de palace dans votre salon. »',0,'320 W : l’incandescence gaspille 90 % de l’énergie en chaleur.']]}
+  ]
+ },
+ {
+  id:'cuisine', name:'Cuisine', icon:'🍳', x:6,z:4,w:4,d:4, color:0xdfe9e2, sockets:6,
+  norms:[
+   ['','Dans la cuisine, il faut au minimum 6 prises avec terre, dont 4 au-dessus du plan de travail, toutes posées entre 5 cm et 1,30 m du sol. Les gros appareils (plaque de cuisson, four, lave-linge, lave-vaisselle) ont chacun leur propre circuit. Un point lumineux au plafond éclaire la pièce.']
+  ],
+  energyTip:'<b>Réfrigérateur :</b> compte environ 75 L par personne (famille de 4 personnes). <b>Plaque :</b> on n’utilise pas plus de 80 % de la puissance du circuit. <b>Éclairage :</b> environ 1 W par m².',
+  options:[
+   [1,'Circuit spécialisé pour la plaque de cuisson','Gros consommateur','Une plaque demande son propre circuit.'],
+   [1,'Circuit spécialisé pour le lave-linge','Circuit dédié','Gros consommateur : circuit spécialisé obligatoire.'],
+   [1,'Circuit spécialisé pour le lave-vaisselle','Circuit dédié','Un circuit par gros appareil.'],
+   [1,'Circuit spécialisé pour le four','Four séparé de la plaque','Le four a son propre circuit.'],
+   [0,'Plaque de cuisson branchée sur une prise ordinaire','Réutiliser une prise du plan de travail','Une plaque consomme énormément : une prise ordinaire surchauffe, il faut un circuit spécialisé.'],
+   [0,'Lave-linge branché sur une prise du plan de travail','Pas besoin de nouveau câble','Gros consommateur : il lui faut un circuit spécialisé.'],
+   [0,'Multiprise posée sur le plan de travail près de l’évier','Pour économiser des prises','Eau + multiprise = risque d’électrocution.'],
+   [1,'1 point lumineux au plafond','Éclairage de la cuisine','La cuisine a au moins un point lumineux au plafond.'],
+   [0,'Prise pour l’éclairage','Pour économiser du câble','L’éclairage se raccorde à un point lumineux au plafond, pas à une prise.'],
+  ],
+  furn:[
+   [.6,.9,2.1,9.65,5.4,0xcfd3d8,0],[.6,.9,.6,9.65,4.45,0xcfd3d8,0],
+   [1.6,.9,.8,8,6.2,0xb08968,0],[.7,1.8,.7,6.55,4.55,0xdddddd,0]
+  ],
+  appliances:[
+   {id:'frigo',label:'Réfrigérateur',icon:'🧊',hours:3000,size:[.65,1.7,.65],pos:[6.55,0,7.5],color:0x9bb7c9,choices:[
+     ['Américain 2 portes 540 L',220,'F',1990,'« Distributeur de glaçons et écran tactile connecté : la cuisine de vos rêves. »',0,'220 W : 540 L pour une famille de 3–4, c’est trop grand et très énergivore.'],
+     ['Combiné 300 L classe C',90,'C',649,'« Suffisant pour toute la famille, silencieux et économe. »',1,'90 W : volume adapté aux besoins, bonne classe énergétique.'],
+     ['Frigo 2 portes + mini-bar',250,'F',799,'« Des boissons toujours fraîches pour vos invités ! »',0,'Deux appareils qui tournent en permanence : 250 W pour un usage rare.']]},
+   {id:'plaque',label:'Plaque de cuisson',icon:'🔥',hours:150,size:[.6,.04,.6],pos:[9.65,.9,5.2],color:0x222222,choices:[
+     ['Induction 5 foyers 7 400 W',7400,'-',1590,'« Cuisinez 5 plats à la fois, comme un chef ! »',0,'7 400 W = toute la puissance du circuit de la plaque : risque de disjonction, et on n’utilise jamais 5 foyers.'],
+     ['Induction 4 foyers (limitation à 4 600 W)',4600,'-',449,'« Cuisson rapide et précise, gestion intelligente de la puissance. »',1,'Induction économe et puissance limitée pour ne pas surcharger le circuit.'],
+     ['Vitrocéramique radiante 4 foyers 6 000 W',6000,'-',199,'« Une plaque complète, simple et robuste ! »',0,'Rendement plus faible qu’une induction et puissance élevée.']]},
+   {id:'ll',label:'Lave-linge',icon:'🧺',hours:120,size:[.6,.85,.6],pos:[9.65,0,7.3],color:0xf0f0f0,choices:[
+     ['Lavant-séchant 12 kg',2800,'D',1190,'« Lave et sèche en un seul cycle : zéro corvée ! »',0,'Le séchage électrique consomme énormément (2 800 W) : mieux vaut étendre le linge.'],
+     ['Lave-linge 8 kg classe A, programme éco',1700,'A',489,'« Départ différé en heures creuses, programme éco 40 °C. »',1,'8 kg suffisent pour la famille, et l’éco + heures creuses réduisent la facture.'],
+     ['Lave-linge 10 kg « Turbo 15 min »',2400,'C',629,'« Lavez en 15 minutes, gagnez du temps ! »',0,'2 400 W : chauffer l’eau vite demande beaucoup d’énergie.']]},
+   {id:'plan',label:'Éclairage du plan de travail',icon:'💡',hours:700,size:[.1,.06,1.4],pos:[9.65,1.35,5.3],color:0xfff3b0,choices:[
+     ['Tube néon 58 W sous les meubles hauts',58,'E',35,'« Un éclairage puissant et uniforme, comme dans un atelier ! »',0,'58 W : un tube néon consomme beaucoup plus qu’une LED pour le même éclairage.'],
+     ['Réglette LED 14 W sous les meubles hauts',14,'A',49,'« Lumière blanche sans ombre, qui ne chauffe pas. »',1,'14 W : la LED consomme environ 4 fois moins qu’un néon pour le même éclairage.'],
+     ['Rampe de 6 spots halogènes 50 W',300,'D',79,'« Une lumière chaude pour cuisiner dans une ambiance de restaurant ! »',0,'300 W : l’halogène chauffe beaucoup plus qu’il n’éclaire.']]}
+  ]
+ },
+ {
+  id:'sdb', name:'Salle de bains', icon:'🛁', x:3.5,z:0,w:3,d:4, color:0xd7ecf4, sockets:1,
+  norms:[
+   ['','Dans la salle de bains, l’eau et l’électricité ne font pas bon ménage. Les prises et les interrupteurs doivent être à plus de 60 cm de la baignoire ou de la douche, et jamais au-dessus. Les luminaires près de l’eau doivent être étanches aux éclaboussures.']
+  ],
+  energyTip:'<b>Chauffage :</b> environ 80 W par m². <b>Éclairage :</b> environ 1,25 W par m². <b>Protection contre l’eau :</b> près de la baignoire ou de la douche, un appareil doit avoir un indice IP24 au minimum : le « 2 » protège des petits objets, le « 4 » des éclaboussures.',
+  options:[
+   [1,'Luminaire étanche aux éclaboussures (IPX4)','Le « 4 » veut dire : résiste à l’eau qui gicle','Un luminaire IPX4 est protégé contre les éclaboussures : il peut rester près de la douche ou de la baignoire sans danger.'],
+   [0,'Plafonnier IP20 au-dessus de la douche','Moins cher','IP20 veut dire « aucune protection contre l’eau » : les éclaboussures peuvent provoquer un court-circuit ou un choc électrique.'],
+   [1,'Circuit dédié sèche-serviettes','Chauffage sur circuit séparé','Un chauffage a son propre circuit.'],
+   [1,'Interrupteur à plus de 60 cm de la baignoire','Assez loin de l’eau','À plus de 60 cm, l’interrupteur est autorisé.'],
+   [0,'Interrupteur à 30 cm de la baignoire','Plus facile d’accès','Trop près de l’eau (moins de 60 cm) : interdit.'],
+   [0,'Interrupteur au-dessus de la baignoire','« Plus pratique »','Au-dessus de la baignoire, on a les mains mouillées et l’eau gicle : danger d’électrocution, c’est interdit.'],
+   [0,'Prise de courant à 30 cm de la baignoire','Plus facile pour le sèche-cheveux','Trop près de l’eau (moins de 60 cm) : interdit.'],
+   [0,'Prise de courant au-dessus de la baignoire','« Plus pratique pour se raser »','Au-dessus de la baignoire, l’eau et l’électricité ne font pas bon ménage : interdit, danger d’électrocution.'],
+   [0,'Radiateur soufflant posé au bord de la baignoire','Chauffage rapide','Un appareil branché à côté de l’eau risque de tomber dedans : très dangereux.']
+  ],
+  furn:[
+   [.85,.6,2.0,5.95,1.1,0xffffff,0],[.7,.85,.5,4.0,.45,0xffffff,0],[.45,.4,.45,4.2,3.4,0xe9eef2,0]
+  ],
+  appliances:[
+   {id:'seche',label:'Sèche-serviettes',icon:'🌡️',hours:700,size:[.08,1.2,.5],pos:[6.35,.5,2.8],color:0xdddddd,choices:[
+     ['Sèche-serviettes soufflant 2 000 W, IP24',2000,'-',129,'« Salle de bains chaude en 2 minutes, serviettes brûlantes ! »',0,'IP24 : autorisé, mais 2 000 W est bien trop puissant pour cette salle de bains.'],
+     ['Sèche-serviettes électrique 1 000 W, programmable, IP24',1000,'A',269,'« Serviettes douces et sèches, avec programmation horaire. »',1,'IP24 : autorisé près de l’eau, et la puissance correspond à la taille de la pièce.'],
+     ['Sèche-serviettes électrique 1 000 W, programmable, IP20',1000,'A',189,'« Le même modèle, au design plus épuré et plus discret ! »',0,'IP20 ne protège pas des éclaboussures : interdit près de la baignoire ou de la douche.']]},
+   {id:'miroir',label:'Éclairage miroir',icon:'🪞',hours:700,size:[.8,.15,.08],pos:[4.0,1.55,.12],color:0xfff3b0,choices:[
+     ['Rampe de 8 spots halogènes',400,'D',79,'« Un éclairage digne d’une loge de star ! »',0,'400 W : très gourmand, et la chaleur dégagée est inutile.'],
+     ['Miroir LED 15 W IP44',15,'A',89,'« Lumière blanche sans ombre, protégé contre les éclaboussures. »',1,'15 W et IP44 : économe et adapté à la salle de bains.'],
+     ['3 appliques incandescentes 60 W',180,'F',69,'« Le charme d’une lumière chaude à l’ancienne. »',0,'180 W : l’incandescence gaspille l’énergie en chaleur.']]}
+  ]
+ },
+ {
+  id:'ch1', name:'Chambre 1 (parents)', icon:'🛏️', x:0,z:0,w:3.5,d:4, color:0xe4dcf0, sockets:3,
+  norms:[
+   ['','Dans une chambre, il faut au minimum 3 prises, posées entre 5 cm et 1,30 m du sol, plus une prise réseau (RJ45) et un point lumineux au plafond.']
+  ],
+  energyTip:'<b>Chauffage :</b> environ 50 W par m². <b>Éclairage :</b> environ 0,5 W par m².',
+  options:[
+   [1,'1 point lumineux au plafond','Éclairage','Chaque chambre a un point lumineux au plafond.'],
+   [1,'1 prise RJ45','Communication','Obligatoire dans chaque chambre.'],
+   [0,'Multiprise','Pour économiser des prises','Une multiprise ne remplace pas de vraies prises : elle peut chauffer et provoquer un incendie.'],
+   [0,'Prise pour l’éclairage','Pour économiser du câble','L’éclairage se raccorde à un point lumineux au plafond, pas à une prise.']
+  ],
+  furn:[
+   [1.6,.5,2.0,1.2,1.5,0x8a7fb5,0],[1.6,.2,.35,1.2,.5,0xffffff,.5],
+   [.6,1.8,1.3,.4,3.2,0x8b5e3c,0],[.4,.5,.4,2.2,.4,0x8b5e3c,0]
+  ],
+  appliances:[
+   {id:'rad',label:'Chauffage',icon:'🔥',hours:600,size:[1.0,.5,.1],pos:[2.7,.1,.15],color:0xf4f4f4,choices:[
+     ['Radiateur bain d’huile 2 000 W',2000,'-',79,'« Chaleur enveloppante, parfait pour les nuits froides ! »',0,'2 000 W pour une chambre : trop puissant, il consomme beaucoup.'],
+     ['Radiateur rayonnant programmable 750 W',750,'A',169,'« Programmation hebdomadaire, chaleur douce à 18 °C. »',1,'750 W conviennent à une chambre et la programmation évite de chauffer pour rien.'],
+     ['Panneau rayonnant 2 000 W « Turbo »',2000,'-',69,'« Mode Turbo : chambre chaude en 5 minutes ! »',0,'Le mode Turbo double la puissance utile pour un gain minime.']]},
+   {id:'lampe',label:'Lampe de chevet',icon:'💡',hours:600,size:[.2,.3,.2],pos:[2.2,.5,.4],color:0xffd966,choices:[
+     ['Lampe halogène 300 W',300,'D',49,'« Une lumière puissante pour lire comme en plein jour ! »',0,'300 W pour lire : 50 fois trop, et elle chauffe.'],
+     ['Lampe LED 6 W',6,'A',19,'« Lumière chaude réglable, ne chauffe pas. »',1,'6 W suffisent pour lire confortablement.'],
+     ['Lampe incandescente 60 W',60,'F',12,'« Ambiance cosy garantie. »',0,'60 W pour la même lumière qu’une LED de 6 W : 10 fois plus.']]}
+  ]
+ },
+ {
+  id:'ch2', name:'Chambre 2 (enfant)', icon:'🎒', x:6.5,z:0,w:3.5,d:4, color:0xf3e0d2, sockets:3,
+  norms:[
+   ['','Dans la chambre d’enfant, il faut au minimum 3 prises avec obturateurs (pour la sécurité des enfants), une prise réseau (RJ45) près du bureau et un point lumineux au plafond.']
+  ],
+  energyTip:'<b>Chauffage :</b> environ 50 W par m². <b>Éclairage :</b> environ 0,5 W par m².',
+  options:[
+   [1,'1 point lumineux au plafond','Éclairage','Chaque chambre a un point lumineux au plafond.'],
+   [1,'1 prise RJ45 au poste de travail','Devoirs et réseau','Chaque chambre a une prise de communication.'],
+   [0,'Prises sans obturateurs « pour brancher plus vite »','Gain de temps','Obturateurs obligatoires : danger pour les enfants.'],
+   [0,'Multiprise','Pour économiser des prises','Une multiprise ne remplace pas de vraies prises : elle peut chauffer et provoquer un incendie.'],
+   [0,'Prise pour l’éclairage','Pour économiser du câble','L’éclairage se raccorde à un point lumineux au plafond, pas à une prise.']
+  ],
+  furn:[
+   [1.5,.5,2.0,9.0,1.5,0x4fa0a8,0],[1.2,.75,.6,7.2,.45,0xb08968,0],
+   [.6,1.8,1.3,9.7,3.2,0x8b5e3c,0],[.45,.45,.45,7.2,1.2,0x333333,0]
+  ],
+  appliances:[
+   {id:'pc',label:'Ordinateur',icon:'💻',hours:1000,size:[.5,.35,.1],pos:[7.2,.75,.45],color:0x1f2937,choices:[
+     ['PC gamer RTX 750 W',750,'G',2490,'« Jouez en 4K à 240 images/s : les copains seront jaloux ! »',0,'750 W : une puissance énorme pour des devoirs et de la bureautique.'],
+     ['Ordinateur portable 45 W',45,'A',699,'« Léger, autonome, parfait pour les devoirs. »',1,'45 W : suffisant pour le travail scolaire, 16 fois moins gourmand.'],
+     ['PC tout-en-un 300 W « Ultra »',300,'E',999,'« Toute la puissance dont vous aurez besoin un jour. »',0,'300 W pour un usage bureautique : surdimensionné.']]},
+   {id:'lampeb',label:'Lampe de bureau',icon:'💡',hours:600,size:[.15,.4,.15],pos:[7.8,.75,.4],color:0xffe08a,choices:[
+     ['Spot halogène orientable 150 W',150,'D',35,'« Un éclairage de studio pour travailler sans fatigue ! »',0,'150 W : l’halogène chauffe beaucoup pour un petit plan de travail.'],
+     ['Lampe LED 7 W',7,'A',24,'« Lumière blanche réglable, ne chauffe pas. »',1,'7 W suffisent pour un bureau.'],
+     ['Rampe néon 80 W « Gaming »',80,'E',49,'« Ambiance gaming RGB avec effets lumineux ! »',0,'80 W pour de la décoration : consommation inutile.']]},
+   {id:'rad2',label:'Chauffage',icon:'🔥',hours:600,size:[.1,.5,1.0],pos:[9.85,.1,2.8],color:0xf4f4f4,choices:[
+     ['Radiateur soufflant 2 000 W',2000,'-',29,'« Chauffe en 30 secondes ! »',0,'Chauffage d’appoint : 2 000 W pour une chambre, beaucoup trop.'],
+     ['Panneau rayonnant programmable 750 W',750,'A',159,'« Programmable, température stable et silencieux. »',1,'750 W conviennent à une chambre et la programmation limite la facture.'],
+     ['Convecteur 1 500 W sans thermostat',1500,'-',45,'« Le plus puissant de sa catégorie ! »',0,'1 500 W en continu et sans régulation.']]}
+  ]
+ }
+];
+
+// Faux équipements ajoutés dans chaque pièce : une fausse prise spéciale et une fausse lumière
+const FAUSSE_DOUILLE=[0,'Luminaire sans boîtier : fils dénudés au plafond','Pour installer le lustre plus tard','Des fils dénudés sont dangereux : un luminaire se raccorde toujours dans un boîtier fermé (point lumineux).'];
+const EXTRA={
+  salon:[[0,'Prise spéciale 32 A (comme celle de la plaque de cuisson)','« Pour le futur home cinéma »','La prise 32 A est réservée à la plaque de cuisson : aucun appareil du salon n’en a besoin.'],FAUSSE_DOUILLE],
+  cuisine:[[0,'Circuit spécialisé pour la bouilloire','Parce qu’elle consomme beaucoup','Une bouilloire se branche sur une prise ordinaire du plan de travail. Les circuits spécialisés sont réservés aux très gros appareils (plaque, four, lave-linge, lave-vaisselle).'],
+           [0,'Luminaire non étanche juste au-dessus de l’évier','Pour bien voir en faisant la vaisselle','Près de l’évier, un luminaire non protégé reçoit les éclaboussures : risque de court-circuit.']],
+  sdb:[[0,'Multiprise','Pour économiser des prises','Une multiprise ne remplace pas de vraies prises, et elle est très dangereuse près de l’eau.'],
+       [0,'Prise pour l’éclairage','Pour économiser du câble','L’éclairage se raccorde à un point lumineux au plafond, pas à une prise.'],
+       [0,'Circuit spécialisé pour le sèche-cheveux','Parce qu’il est puissant','Un sèche-cheveux se branche sur une prise ordinaire, à plus de 60 cm de la baignoire. Pas besoin de circuit spécialisé.'],
+       [0,'Luminaire posé au bord de la baignoire (lampe de table)','Pour une ambiance relaxante','Une lampe branchée qui tombe dans l’eau provoque une électrocution : interdit.']],
+  ch1:[[0,'Prise spéciale 32 A (comme celle de la plaque de cuisson)','Pour brancher l’ordinateur','La prise 32 A est réservée à la plaque de cuisson : un ordinateur se branche sur une prise ordinaire.'],FAUSSE_DOUILLE],
+  ch2:[[0,'Prise spéciale 32 A (comme celle de la plaque de cuisson)','Pour brancher l’ordinateur','La prise 32 A est réservée à la plaque de cuisson : un ordinateur se branche sur une prise ordinaire.'],FAUSSE_DOUILLE]
+};
+// ---- prépare les données : identifiants stables + ordre mélangé (affichage)
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+ROOMS.forEach(r=>{
+  r.options=r.options.concat(EXTRA[r.id]||[]).map((o,i)=>({id:r.id+'-o'+i,ok:!!o[0],label:o[1],detail:o[2],why:o[3]}));
+  r.optOrder=shuffle(r.options.map(o=>o.id));
+  r.appliances.forEach(a=>{
+    a.choices=a.choices.map((c,i)=>({id:a.id+'-c'+i,name:c[0],w:c[1],cls:c[2],price:c[3],pitch:c[4],ok:!!c[5],why:c[6]}));
+    a.order=shuffle(a.choices.map(c=>c.id));
+  });
+});
+// Compteurs des prises de courant : [libellé, aide, bonne valeur, explication, estUnPiège]
+const H_BAS='Une prise se pose à au moins 5 cm du sol : plus bas, elle prend l’humidité et les chocs.';
+const H_HAUT='Une prise se pose à 1,30 m du sol au maximum : plus haut, elle n’est pas accessible à tous (enfants, personnes en fauteuil roulant).';
+const SANS_TERRE='La terre est obligatoire sur toutes les prises : elle protège en cas de défaut.';
+const COUNTERS={
+  salon:[['Prise de courant entre 0 et 5 cm du sol','Plus discret',0,H_BAS,1],
+         ['Prise de courant entre 5 cm et 1,30 m du sol','Nombre de prises : utilise les dimensions du plan',6,'Le salon fait 6 m × 4 m = 24 m². Une prise par tranche de 4 m² : 24 ÷ 4 = 6 prises (minimum 5), posées entre 5 cm et 1,30 m du sol.',0],
+         ['Prise de courant entre 1,30 m et 2 m du sol','Plus facile à atteindre debout',0,H_HAUT,1],
+         ['Prise sans terre (modèle ancien)','Moins chère',0,SANS_TERRE,1]],
+  cuisine:[['Prise de courant entre 0 et 5 cm du sol','Plus discret',0,H_BAS,1],
+           ['Prise de courant entre 5 cm et 90 cm du sol (sous le plan de travail)','Nombre de prises en bas',2,'Il faut 6 prises au minimum : 4 au-dessus du plan de travail et 2 en bas, posées entre 5 cm et 90 cm.',0],
+           ['Prise de courant entre 90 cm et 1,30 m du sol (au-dessus du plan de travail)','Nombre de prises pour les petits appareils',4,'Sur les 6 prises de la cuisine, 4 doivent être au-dessus du plan de travail, entre 90 cm et 1,30 m.',0],
+           ['Prise de courant entre 1,30 m et 2 m du sol','Plus facile à atteindre debout',0,H_HAUT,1],
+           ['Prise sans terre (modèle ancien)','Moins chère',0,SANS_TERRE,1]],
+  sdb:[['Prise de courant à plus de 60 cm de la baignoire, entre 5 cm et 1,30 m du sol','Nombre de prises à la bonne distance',1,'Une prise est autorisée, à condition d’être à plus de 60 cm de la baignoire ou de la douche, loin des éclaboussures, et posée entre 5 cm et 1,30 m du sol.',0],
+       ['Prise de courant entre 0 et 5 cm du sol','Plus discret',0,H_BAS,1],
+       ['Prise de courant entre 1,30 m et 2 m du sol','Plus facile à atteindre debout',0,H_HAUT,1],
+       ['Prise sans terre (modèle ancien)','Moins chère',0,SANS_TERRE,1]],
+  ch1:[['Prise de courant entre 0 et 5 cm du sol','Plus discret',0,H_BAS,1],
+       ['Prise de courant entre 5 cm et 1,30 m du sol','Nombre de prises',3,'Une chambre doit avoir au minimum 3 prises, posées entre 5 cm et 1,30 m du sol.',0],
+       ['Prise de courant entre 1,30 m et 2 m du sol','Plus facile à atteindre debout',0,H_HAUT,1],
+       ['Prise sans terre (modèle ancien)','Moins chère',0,SANS_TERRE,1]],
+  ch2:[['Prise de courant entre 0 et 5 cm du sol','Plus discret',0,H_BAS,1],
+       ['Prise à obturateurs entre 5 cm et 1,30 m du sol','Nombre de prises',3,'Une chambre doit avoir au minimum 3 prises, posées entre 5 cm et 1,30 m du sol, avec obturateurs pour protéger les enfants.',0],
+       ['Prise de courant entre 1,30 m et 2 m du sol','Plus facile à atteindre debout',0,H_HAUT,1],
+       ['Prise sans terre (modèle ancien)','Moins chère',0,SANS_TERRE,1]]
+};
+ROOMS.forEach(r=>{
+  r.counters=shuffle(COUNTERS[r.id].map((c,i)=>({id:r.id+'-k'+i,label:c[0],detail:c[1],answer:c[2],why:c[3],sock:!c[4],trap:!!c[4],isC:true})));
+  // un compteur pour chaque élément : les bons équipements valent 1, les pièges valent 0
+  r.rows=r.counters.concat(r.optOrder.map(id=>{const o=r.options.find(x=>x.id===id);return{id:o.id,label:o.label,detail:o.detail,answer:o.ok?1:0,why:o.why,sock:false,trap:!o.ok}}));
+  // répartition en 3 parties : p = prises électriques, s = prises spéciales, l = lumières
+  r.rows.forEach(c=>{
+    c.cat=c.isC?'p':/spécial/i.test(c.label)?'s':/lumin|plafonnier|point lumineux|lumière|éclairage|interrupteur/i.test(c.label)?'l'
+      :/^(prise|prises|multiprise|radiateur|lave-linge branché|plaque de cuisson branchée)/i.test(c.label)?'p':'s';
+  });
+});
+const ROOM = Object.fromEntries(ROOMS.map(r=>[r.id,r]));
+const optOf=(r,id)=>r.options.find(o=>o.id===id);
+const kwhOf=(a,c)=>c.w*a.hours/1000;
+const eur=n=>n.toLocaleString('fr-FR',{minimumFractionDigits:0,maximumFractionDigits:0})+' €';
+const kwhFmt=n=>Math.round(n).toLocaleString('fr-FR')+' kWh';
+
+/* =====================================================================
+   ÉTAT + SAUVEGARDE
+   ===================================================================== */
+const KEY='epi-maison-electrique-v1';
+function freshState(){
+  const s={phase:1,sel:null,done1:false,done2:false,r:{},t3:{on:{},wh:0,min:0,paused:false}};
+  ROOMS.forEach(r=>s.r[r.id]={cnt:{},cflag:{},sel:[],flag:{},valid:false,att:0,msg:'',picks:{},locked:{},bad:{},v2:false,att2:0,msg2:''});
+  return s;
+}
+let S=freshState();
+try{const raw=localStorage.getItem(KEY);if(raw){const p=JSON.parse(raw);if(p&&p.r&&ROOMS.every(r=>p.r[r.id])){
+  // ancienne sauvegarde : on repart de zéro pour l'étape 1 (le compteur de prises est nouveau)
+  if(ROOMS.every(r=>p.r[r.id].cnt))S=p;}}}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+if(!S.t3)S.t3={on:{},wh:0,min:0,paused:false};
+
+const count1=()=>ROOMS.filter(r=>S.r[r.id].valid).length;
+const count2=()=>ROOMS.filter(r=>S.r[r.id].v2).length;
+const $=id=>document.getElementById(id);
+
+/* =====================================================================
+   3D (three.js)
+   ===================================================================== */
+const stage=$('stage');
+let renderer,scene,camera,controls,house,raycaster,mouse,hovered=null,focusTarget=null;
+const roomGroups={};
+const dynGroups={};
+const labelSprites={};
+
+function init3D(){
+  if(typeof THREE==='undefined'||!THREE.OrbitControls){
+    $('hint').textContent='⚠️ Bibliothèque 3D non chargée : vérifie la connexion internet puis recharge la page.';
+    return false;
+  }
+  renderer=new THREE.WebGLRenderer({antialias:true});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+  stage.insertBefore(renderer.domElement,stage.firstChild);
+  scene=new THREE.Scene();
+  camera=new THREE.PerspectiveCamera(42,1,.1,200);
+  camera.position.set(0,12.5,11.5);
+  controls=new THREE.OrbitControls(camera,renderer.domElement);
+  controls.target.set(0,0,0);controls.enableDamping=true;controls.dampingFactor=.08;
+  controls.maxPolarAngle=Math.PI/2.2;controls.minDistance=5;controls.maxDistance=30;
+  scene.add(new THREE.HemisphereLight(0xffffff,0xb8c4d0,.75));
+  const sun=new THREE.DirectionalLight(0xffffff,.65);
+  sun.position.set(8,16,6);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);
+  Object.assign(sun.shadow.camera,{left:-10,right:10,top:10,bottom:-10,near:1,far:40});
+  scene.add(sun);
+
+  const ground=new THREE.Mesh(new THREE.PlaneGeometry(80,80),new THREE.MeshStandardMaterial({color:0xbfd8b0}));
+  ground.rotation.x=-Math.PI/2;ground.position.y=-.2;ground.receiveShadow=true;scene.add(ground);
+
+  house=new THREE.Group();house.position.set(-5,0,-4);scene.add(house);
+  const slab=new THREE.Mesh(new THREE.BoxGeometry(10.6,.2,8.6),new THREE.MeshStandardMaterial({color:0x9aa5b1}));
+  slab.position.set(5,-.1,4);slab.receiveShadow=true;house.add(slab);
+
+  // murs
+  const T=.15,H=1.9,wallMat=new THREE.MeshStandardMaterial({color:0xf7f3ec});
+  function wall(x1,z1,x2,z2,h,gaps=[]){
+    const horiz=z1===z2;let a=horiz?Math.min(x1,x2):Math.min(z1,z2),b=horiz?Math.max(x1,x2):Math.max(z1,z2);
+    let segs=[[a-T/2,b+T/2]];
+    gaps.forEach(([g0,g1])=>{segs=segs.flatMap(([s0,s1])=>{if(g1<=s0||g0>=s1)return[[s0,s1]];const o=[];if(g0>s0)o.push([s0,g0]);if(g1<s1)o.push([g1,s1]);return o;});});
+    segs.forEach(([s0,s1])=>{
+      const len=s1-s0;
+      const m=new THREE.Mesh(horiz?new THREE.BoxGeometry(len,h,T):new THREE.BoxGeometry(T,h,len),wallMat);
+      m.position.set(horiz?(s0+s1)/2:x1,h/2,horiz?z1:(s0+s1)/2);
+      m.castShadow=true;m.receiveShadow=true;house.add(m);
+    });
+  }
+  wall(0,0,10,0,H);wall(0,0,0,8,H);wall(10,0,10,8,H);
+  wall(0,8,10,8,.35,[[2.3,3.4]]);                          // façade avant basse (coupe)
+  wall(0,4,10,4,H,[[1.2,2.2],[4.6,5.6],[8,9]]);            // cloison avec portes
+  wall(3.5,0,3.5,4,H);wall(6.5,0,6.5,4,H);
+  wall(6,4,6,8,H,[[5,7.2]]);                               // passage salon / cuisine
+  // porte d'entrée
+  const door=new THREE.Mesh(new THREE.BoxGeometry(1.0,.06,.12),new THREE.MeshStandardMaterial({color:0x8b5e3c}));
+  door.position.set(2.85,.03,8);house.add(door);
+
+  function box(g,w,h,d,x,y,z,color,cast=true){
+    const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),new THREE.MeshStandardMaterial({color,roughness:.8}));
+    m.position.set(x,y,z);m.castShadow=cast;m.receiveShadow=true;g.add(m);return m;
+  }
+  ROOMS.forEach(r=>{
+    const g=new THREE.Group();g.userData.roomId=r.id;house.add(g);roomGroups[r.id]=g;
+    const floor=new THREE.Mesh(new THREE.BoxGeometry(r.w-.12,.1,r.d-.12),new THREE.MeshStandardMaterial({color:r.color,emissive:0x000000}));
+    floor.position.set(r.x+r.w/2,.05,r.z+r.d/2);floor.receiveShadow=true;g.add(floor);r.floor=floor;
+    r.furn.forEach(([w,h,d,x,z,c,y])=>box(g,w,h,d,x,(y||0)+h/2+.1,z,c));
+    const dyn=new THREE.Group();g.add(dyn);dynGroups[r.id]=dyn;
+    // étiquette
+    const cv=document.createElement('canvas');cv.width=320;cv.height=96;
+    const tex=new THREE.CanvasTexture(cv);
+    const spr=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,depthTest:false,transparent:true}));
+    spr.scale.set(2.6,.78,1);spr.position.set(r.x+r.w/2,2.3,r.z+r.d/2);spr.renderOrder=10;
+    house.add(spr);labelSprites[r.id]={cv,tex,spr};
+    // cotes sur le plan (dimensions en mètres)
+    const dim=(txt,x,z,rot)=>{
+      const c=document.createElement('canvas');c.width=160;c.height=48;const x2=c.getContext('2d');
+      x2.fillStyle='rgba(255,255,255,.92)';x2.fillRect(2,4,156,40);x2.strokeStyle='#14213d';x2.lineWidth=2;x2.strokeRect(2,4,156,40);
+      x2.fillStyle='#14213d';x2.font='bold 26px system-ui,Segoe UI,Arial';x2.textAlign='center';x2.textBaseline='middle';x2.fillText(txt,80,25);
+      const m=new THREE.Mesh(new THREE.PlaneGeometry(1.5,.45),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(c),transparent:true}));
+      m.rotation.x=-Math.PI/2;m.rotation.z=rot;m.position.set(x,.17,z);g.add(m);
+    };
+    dim('↔ '+r.w+' m',r.x+r.w/2,r.z+r.d-.4,0);
+    dim('↕ '+r.d+' m',r.x+.45,r.z+r.d/2,Math.PI/2);
+  });
+
+  raycaster=new THREE.Raycaster();mouse=new THREE.Vector2();
+  const el=renderer.domElement;let down=null;
+  el.addEventListener('pointerdown',e=>{down=[e.clientX,e.clientY]});
+  el.addEventListener('pointerup',e=>{
+    if(!down)return;const moved=Math.hypot(e.clientX-down[0],e.clientY-down[1]);down=null;
+    if(moved<6&&e.button===0){const id=pick(e);if(id)selectRoom(id);}
+  });
+  el.addEventListener('pointermove',e=>{const id=pick(e);if(id!==hovered){hovered=id;el.style.cursor=id?'pointer':'grab';applyFloors();}});
+  new ResizeObserver(resize).observe(stage);resize();
+  (function loop(){
+    requestAnimationFrame(loop);
+    if(focusTarget){controls.target.lerp(focusTarget,.08);if(controls.target.distanceTo(focusTarget)<.01)focusTarget=null;}
+    controls.update();renderer.render(scene,camera);
+  })();
+  ROOMS.forEach(r=>{refreshRoom3D(r);drawLabel(r)});
+  applyFloors();
+  return true;
+}
+function resize(){
+  const w=stage.clientWidth,h=stage.clientHeight;if(!w||!h||!renderer)return;
+  renderer.setSize(w,h);camera.aspect=w/h;camera.updateProjectionMatrix();
+}
+function pick(e){
+  const rc=renderer.domElement.getBoundingClientRect();
+  mouse.set(((e.clientX-rc.left)/rc.width)*2-1,-((e.clientY-rc.top)/rc.height)*2+1);
+  raycaster.setFromCamera(mouse,camera);
+  const hit=raycaster.intersectObjects(Object.values(roomGroups),true)[0];
+  if(!hit)return null;let o=hit.object;while(o&&!o.userData.roomId)o=o.parent;return o?o.userData.roomId:null;
+}
+function roomDone(r){return S.phase===1?S.r[r.id].valid:S.r[r.id].v2}
+function applyFloors(){
+  if(!renderer)return;
+  ROOMS.forEach(r=>{
+    const done=roomDone(r),sel=S.sel===r.id,hov=hovered===r.id;
+    r.floor.material.color.setHex(done?(S.phase===1?0xb9e4c3:0xb5d6f4):r.color);
+    r.floor.material.emissive.setHex(sel?0x2a5bd7:hov?0x555555:0x000000);
+    r.floor.material.emissiveIntensity=sel?.55:.35;
+  });
+}
+function drawLabel(r){
+  const L=labelSprites[r.id];if(!L)return;const c=L.cv.getContext('2d');
+  c.clearRect(0,0,320,96);
+  const done=roomDone(r);
+  c.fillStyle=done?'rgba(22,163,74,.95)':(S.sel===r.id?'rgba(37,99,235,.95)':'rgba(20,33,61,.88)');
+  c.beginPath();c.roundRect?c.roundRect(4,8,312,80,24):c.rect(4,8,312,80);c.fill();
+  c.fillStyle='#fff';c.font='bold 30px system-ui,Segoe UI,Arial';c.textAlign='center';c.textBaseline='middle';
+  c.fillText(r.icon+' '+r.name.replace(/ \(.*\)/,'').replace(' / séjour',''),160,40);
+  c.font='22px system-ui,Segoe UI,Arial';
+  c.fillText(done?'✔ terminé':(S.phase===1?'Étape 1 : à équiper':'Étape 2 : à meubler'),160,70);
+  L.tex.needsUpdate=true;
+}
+function refreshRoom3D(r){
+  const g=dynGroups[r.id];if(!g)return;
+  while(g.children.length)g.remove(g.children[0]);
+  const st=S.r[r.id];
+  // installation électrique validée : prises + point lumineux
+  if(st.valid){
+    const mat=new THREE.MeshStandardMaterial({color:0xffc928,emissive:0xaa7a00,emissiveIntensity:.6});
+    for(let i=0;i<r.sockets;i++){
+      const m=new THREE.Mesh(new THREE.BoxGeometry(.17,.17,.05),mat);
+      m.position.set(r.x+(i+1)*r.w/(r.sockets+1),.45,r.z+.14);g.add(m);
+    }
+    const lamp=new THREE.Mesh(new THREE.SphereGeometry(.14,16,12),new THREE.MeshStandardMaterial({color:0xfff2a8,emissive:0xffe066,emissiveIntensity:1}));
+    lamp.position.set(r.x+r.w/2,1.7,r.z+r.d/2);g.add(lamp);
+    const cord=new THREE.Mesh(new THREE.CylinderGeometry(.01,.01,.2),new THREE.MeshStandardMaterial({color:0x333333}));
+    cord.position.set(r.x+r.w/2,1.85,r.z+r.d/2);g.add(cord);
+  }
+  // appareils choisis
+  r.appliances.forEach(a=>{
+    const cid=st.picks[a.id]||(st.locked[a.id]);if(!cid)return;
+    const good=!!st.locked[a.id];
+    const m=new THREE.Mesh(new THREE.BoxGeometry(...a.size),new THREE.MeshStandardMaterial({color:a.color,emissive:good?0x0f8a3c:0x1d3f9a,emissiveIntensity:.35}));
+    m.position.set(a.pos[0],a.pos[1]+a.size[1]/2+.1,a.pos[2]);m.castShadow=true;g.add(m);
+  });
+}
+function refresh3D(){ROOMS.forEach(r=>{refreshRoom3D(r);drawLabel(r)});applyFloors();}
+
+/* =====================================================================
+   INTERFACE
+   ===================================================================== */
+function toast(t){const e=$('toast');e.textContent=t;e.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('show'),2600)}
+
+let hideL=true,hideR=true;   // fenêtres fermées par défaut : l'élève les ouvre avec les boutons (non sauvegardé)
+function selectRoom(id,keep){
+  if(!keep){hideL=true;hideR=true;}
+  S.sel=id;save();
+  const r=ROOM[id];
+  if(controls)focusTarget=new THREE.Vector3(r.x+r.w/2-5,0,r.z+r.d/2-4);
+  renderAll();
+}
+function closePanels(){S.sel=null;renderAll()}
+
+function renderAll(){
+  const open=!!S.sel;
+  $('main').classList.toggle('left-open',open&&!hideL);
+  $('main').classList.toggle('right-open',open&&!hideR);
+  // les boutons « Réduire » sont dans chaque fenêtre ; ici seulement ceux pour les rouvrir
+  $('panelBtns').style.display=open&&(hideL||hideR)?'block':'none';
+  $('togL').style.display=hideL?'':'none';
+  $('togR').style.display=hideR?'':'none';
+  $('togL').innerHTML='📖<br>Afficher<br>les normes ▶';
+  $('togR').innerHTML=(S.phase===1?'🔧<br>Afficher<br>les équipements':'🛒<br>Afficher<br>les choix')+' ◀';
+  const p3=S.phase===3;
+  $('main').style.display=p3?'none':'';
+  $('view3').style.display=p3?'grid':'none';
+  $('chip3').classList.toggle('active',p3);
+  if(p3)update3();
+  $('chip1').classList.toggle('active',S.phase===1);
+  $('chip2').classList.toggle('active',S.phase===2);
+  $('chip2').disabled=false;
+  $('n1').textContent=count1()+'/'+ROOMS.length;
+  $('n2').textContent=count2()+'/'+ROOMS.length;
+  $('listCount').textContent=listItems().length;
+  $('hint').style.display=(open&&!(hideL&&hideR))?'none':'block';
+  $('hint').textContent=open?'👈 Ouvre les normes à gauche et 👉 les choix à droite avec les boutons orange'
+    :(S.phase===1?'👆 Clique sur une pièce de la maison pour commencer l’étape 1':'👆 Étape 2 : clique sur une pièce pour choisir ses appareils');
+  if(open){renderLeft();renderRight();}
+  refresh3D();
+}
+
+function renderLeft(){
+  const r=ROOM[S.sel];const el=$('leftInner');
+  const area=r.w*r.d;
+  let h=`<div style="display:flex;justify-content:space-between;align-items:start"><div><h2>${r.icon} ${r.name}</h2><div class="sub">Normes électriques à respecter</div></div><span style="display:flex;gap:6px;flex:none"><button class="btn ghost" id="redL" title="Réduire ce menu" style="padding:4px 10px">◀ Réduire</button><button class="btn ghost" id="closeP" title="Fermer" style="padding:4px 10px">✕</button></span></div>`;
+  r.norms.forEach(n=>{h+=`<div class="norm" style="font-size:15.5px;line-height:1.6">${n[1]}</div>`});
+  if(S.phase===2)h+=`<div class="tip"><b>ℹ️ Repères :</b><br>${r.energyTip}</div>`;
+  h+=`<div class="foot">Résumé simplifié de la NF C 15-100, à compléter avec le cours.</div>`;
+  el.innerHTML=h;$('closeP').onclick=closePanels;$('redL').onclick=()=>{hideL=true;renderAll()};
+}
+
+function renderRight(){
+  const el=$('rightInner');const top=el.scrollTop;
+  el.innerHTML=`<div style="text-align:right;margin-bottom:6px"><button class="btn ghost" id="redR" title="Réduire ce menu" style="padding:4px 10px">Réduire ▶</button></div>`+(S.phase===1?html1(ROOM[S.sel]):html2(ROOM[S.sel]));
+  $('redR').onclick=()=>{hideR=true;renderAll()};
+  bindRight(ROOM[S.sel]);el.scrollTop=top;
+}
+
+/* ---------- Étape 1 : équipements (un compteur par élément) ---------- */
+function html1(r){
+  const st=S.r[r.id];
+  let h=`<h2>① Équipements – ${r.icon} ${r.name}</h2>
+  <div class="sub">Pour <b>chaque élément</b>, règle le compteur sur le bon nombre. Laisse à <b>0</b> ce qui n’est pas conforme : certains éléments sont des pièges !</div>`;
+  if(st.valid)h+=`<div class="banner ok">✅ Pièce conforme ! Les équipements sont installés dans la maison 3D (prises jaunes, point lumineux).</div>`;
+  else if(st.msg)h+=`<div class="banner ko">${st.msg}</div>`;
+  const SECTIONS=[['p','🔌 Les prises électriques','Prises de courant, multiprises, appareils branchés'],
+                  ['s','📡 Les prises spéciales','Réseau, TV, circuits des gros appareils…'],
+                  ['l','💡 Les lumières','Points lumineux, luminaires, interrupteurs']];
+  SECTIONS.forEach(([cat,title,sub])=>{
+  const rowsC=r.rows.filter(c=>c.cat===cat);if(!rowsC.length)return;
+  h+=`<h3 style="margin:18px 0 2px;font-size:16px;border-bottom:2px solid var(--line);padding-bottom:4px">${title}</h3><div class="sub" style="margin:4px 0 0">${sub}</div>`;
+  rowsC.forEach(c=>{
+    const v=st.cnt[c.id]||0,f=st.cflag[c.id];
+    let col='',note='';
+    if(st.valid){
+      col=c.trap?'':'good';
+      note=c.trap?`<span class="why" style="color:#6b7785">Piège : ${c.why}</span>`:`<span class="why" style="color:#0f6b31">✔ ${c.why}</span>`;
+    }else if(f==='bad'){
+      col='bad';
+      note=`<span class="why" style="color:#9b1c1c">✘ ${c.trap?c.why:(c.sock?'Ce n’est pas le bon nombre : relis la fiche à gauche et regarde le plan.':'Ce n’est pas le bon nombre pour cet élément.')}</span>`;
+    }else if(f==='good')col='good';
+    h+=`<div class="card ${col}" style="cursor:default;align-items:center"><span style="flex:1"><b>${c.label}</b><span class="d">${c.detail}</span>${note}</span>
+      <span style="display:flex;align-items:center;gap:8px;flex:none">
+       <button class="btn ghost" data-k="${c.id}" data-d="-1" ${st.valid?'disabled':''} style="width:38px;height:38px;font-size:20px;padding:0">−</button>
+       <b style="font-size:22px;min-width:28px;text-align:center">${v}</b>
+       <button class="btn ghost" data-k="${c.id}" data-d="1" ${st.valid?'disabled':''} style="width:38px;height:38px;font-size:20px;padding:0">+</button>
+      </span></div>`;
+  });
+  });
+  if(!st.valid)h+=`<div class="actions"><button class="btn" id="val1">Valider cette pièce</button></div>`;
+  else h+=`<div class="actions"><button class="btn ghost" id="nextRoom">Pièce suivante →</button></div>`;
+  return h;
+}
+function bindRight1(r){
+  const st=S.r[r.id];
+  document.querySelectorAll('#rightInner [data-k]').forEach(b=>b.onclick=()=>{
+    if(st.valid)return;const id=b.dataset.k;
+    st.cnt[id]=Math.max(0,Math.min(15,(st.cnt[id]||0)+Number(b.dataset.d)));
+    delete st.cflag[id];st.msg='';save();renderRight();
+  });
+  const v=$('val1');if(v)v.onclick=()=>validate1(r);
+  const n=$('nextRoom');if(n)n.onclick=nextRoom;
+}
+function validate1(r){
+  const st=S.r[r.id];
+  if(!r.rows.some(c=>st.cnt[c.id])){st.msg='Règle au moins un compteur avant de valider.';renderRight();return;}
+  st.att++;st.cflag={};
+  const bad=r.rows.filter(c=>(st.cnt[c.id]||0)!==c.answer);
+  r.rows.forEach(c=>{if(bad.includes(c))st.cflag[c.id]='bad';else if(st.cnt[c.id])st.cflag[c.id]='good';});
+  if(!bad.length){
+    st.valid=true;st.msg='';toast('✅ '+r.name+' : installation conforme !');
+    save();renderAll();checkDone1();return;
+  }
+  st.msg=`❌ ${bad.length} élément${bad.length>1?'s':''} à revoir (en rouge, lis l’explication). Les éléments bien réglés sont en vert.`;
+  save();renderRight();
+}
+function nextRoom(){
+  const list=ROOMS.filter(r=>!roomDone(r));
+  if(list.length){const i=ROOMS.findIndex(r=>r.id===S.sel);
+    const nx=ROOMS.slice(i+1).concat(ROOMS.slice(0,i)).find(r=>!roomDone(r));selectRoom((nx||list[0]).id,true);}
+  else closePanels();
+}
+
+/* ---------- Étape 2 : appareils ---------- */
+function html2(r){
+  const st=S.r[r.id];
+  let h=`<h2>② Appareils – ${r.icon} ${r.name}</h2>
+  <div class="sub">Pour chaque appareil, choisis un modèle parmi ceux proposés.</div>`;
+  if(st.v2)h+=`<div class="banner ok">✅ Pièce bien équipée ! Bravo, tu n’as pas cédé aux arguments commerciaux.</div>`;
+  else if(st.msg2)h+=`<div class="banner ko">${st.msg2}</div>`;
+  r.appliances.forEach(a=>{
+    h+=`<div class="app"><h3>${a.icon} ${a.label}</h3>`;
+    a.order.forEach(cid=>{
+      const c=a.choices.find(x=>x.id===cid);
+      const locked=st.locked[a.id];const chosen=(st.picks[a.id]===cid)||locked===cid;
+      const bad=(st.bad[a.id]||[]).includes(cid);
+      let cls='opt';if(locked===cid)cls+=' good';else if(bad)cls+=' bad';else if(chosen)cls+=' sel';
+      let res='';
+      if(locked===cid)res=`<div class="res" style="color:#0f6b31">✔ ${c.why}</div>`;
+      else if(bad)res=`<div class="res" style="color:#9b1c1c">✘ ${c.why}</div>`;
+      h+=`<button class="${cls}" data-a="${a.id}" data-c="${cid}" ${locked||bad?'disabled':''}>
+        <div class="top"><span class="name">${c.name}</span></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">
+          <span style="background:#fff4e0;color:#92400e;border:1px solid #f3c77a;border-radius:8px;padding:3px 9px;font-weight:800;font-size:14px">⚡ Puissance : ${c.w.toLocaleString('fr-FR')} W</span>
+          <span style="background:#eaf1ff;color:#1d3f9a;border:1px solid #b8cdf5;border-radius:8px;padding:3px 9px;font-weight:700;font-size:13px">Classe énergie : ${c.cls==='-'?'non classé':c.cls}</span>
+          <span style="background:#f1ebff;color:#4c1d95;border:1px solid #cdbcf5;border-radius:8px;padding:3px 9px;font-weight:700;font-size:13px">Prix d’achat : ${eur(c.price)}</span>
+        </div>
+        <div class="pitch">🛍️ Le vendeur dit : ${c.pitch}</div>${res}</button>`;
+    });
+    h+=`</div>`;
+  });
+  if(!st.v2)h+=`<div class="actions"><button class="btn" id="val2">Valider mes choix</button></div>`;
+  else h+=`<div class="actions"><button class="btn ghost" id="nextRoom">Pièce suivante →</button></div>`;
+  return h;
+}
+function bindRight2(r){
+  const st=S.r[r.id];
+  document.querySelectorAll('#rightInner .opt').forEach(b=>b.onclick=()=>{
+    if(b.disabled)return;st.picks[b.dataset.a]=b.dataset.c;st.msg2='';save();renderRight();refreshRoom3D(r);
+  });
+  const v=$('val2');if(v)v.onclick=()=>validate2(r);
+  const n=$('nextRoom');if(n)n.onclick=nextRoom;
+}
+function validate2(r){
+  const st=S.r[r.id];
+  const todo=r.appliances.filter(a=>!st.locked[a.id]);
+  if(todo.some(a=>!st.picks[a.id])){st.msg2='Choisis un modèle pour chaque appareil avant de valider.';renderRight();return;}
+  st.att2++;let wrong=0;
+  todo.forEach(a=>{
+    const c=a.choices.find(x=>x.id===st.picks[a.id]);
+    if(c.ok)st.locked[a.id]=c.id;
+    else{wrong++;(st.bad[a.id]=st.bad[a.id]||[]).push(c.id);}
+    delete st.picks[a.id];
+  });
+  if(wrong){st.msg2=`❌ ${wrong} choix à revoir : lis bien l’explication en rouge, puis choisis un autre modèle.`;}
+  else{st.v2=true;st.msg2='';toast('✅ '+r.name+' : appareils bien choisis !');}
+  save();renderAll();if(!wrong)checkDone2();
+}
+function bindRight(r){S.phase===1?bindRight1(r):bindRight2(r)}
+
+/* ---------- liste ---------- */
+function listItems(){
+  const items=[];
+  ROOMS.forEach(r=>{
+    const st=S.r[r.id];
+    if(st.valid)r.counters.filter(c=>c.answer>0).forEach(c=>items.push({room:r,type:'Installation',label:c.answer+' × '+c.label,detail:'',w:null,kwh:null,state:'ok'}));
+    if(st.valid)r.options.filter(o=>o.ok).forEach(o=>items.push({room:r,type:'Installation',label:o.label,detail:o.detail,w:null,kwh:null,state:'ok'}));
+    r.appliances.forEach(a=>{
+      const cid=st.locked[a.id]||st.picks[a.id];if(!cid)return;
+      const c=a.choices.find(x=>x.id===cid);
+      items.push({room:r,type:'Appareil',label:a.label+' : '+c.name,detail:'Classe énergie '+(c.cls==='-'?'non classé':c.cls),w:c.w,price:c.price,state:st.locked[a.id]?'ok':'pending'});
+    });
+  });
+  return items;
+}
+function openList(){
+  const items=listItems();
+  const app=items.filter(i=>i.type==='Appareil');
+  const totW=app.reduce((s,i)=>s+i.w,0),totP=app.reduce((s,i)=>s+i.price,0);
+  let h=`<h2>📋 Liste des équipements et appareils électriques</h2>
+  <div class="kpis">
+   <div class="kpi"><b>${items.filter(i=>i.type==='Installation').length}</b><span>équipements d’installation validés</span></div>
+   <div class="kpi"><b>${app.length}</b><span>appareils choisis</span></div>
+   <div class="kpi"><b>${totW.toLocaleString('fr-FR')} W</b><span>puissance cumulée (si tout fonctionne ensemble) – abonnement ${SUBSCRIPTION_W/1000} kVA</span></div>
+   <div class="kpi"><b>${eur(totP)}</b><span>prix d’achat total des appareils</span></div>
+  </div>`;
+  if(!items.length)h+=`<p>La liste est vide pour le moment : elle se remplit au fur et à mesure de tes bonnes réponses.</p>`;
+  else{
+    h+=`<table><thead><tr><th>Type</th><th>Désignation</th><th class="num">Puissance</th><th class="num">Prix d’achat</th></tr></thead><tbody>`;
+    ROOMS.forEach(r=>{
+      const its=items.filter(i=>i.room===r);if(!its.length)return;
+      h+=`<tr class="room"><td colspan="4">${r.icon} ${r.name}</td></tr>`;
+      its.forEach(i=>{
+        h+=`<tr><td>${i.type}${i.state==='pending'?' <small>(en cours)</small>':''}</td><td>${i.label}<br><small style="color:#5d6b7a">${i.detail}</small></td>
+        <td class="num">${i.w==null?'–':i.w.toLocaleString('fr-FR')+' W'}</td><td class="num">${i.price==null?'–':eur(i.price)}</td></tr>`;
+      });
+    });
+    h+=`</tbody></table>`;
+  }
+  h+=`<div class="row"><button class="btn" id="cpList">Copier la liste</button><button class="btn ghost" id="prList">Imprimer</button><button class="btn ghost" id="clList">Fermer</button></div>`;
+  $('listModal').innerHTML=h;$('listOverlay').classList.add('show');
+  $('clList').onclick=()=>$('listOverlay').classList.remove('show');
+  $('prList').onclick=()=>window.print();
+  $('cpList').onclick=()=>{
+    const txt=ROOMS.map(r=>{const its=items.filter(i=>i.room===r);if(!its.length)return '';
+      return r.name+'\n'+its.map(i=>' - '+i.label+(i.w!=null?' ('+i.w+' W, '+i.price+' €)':'')).join('\n')}).filter(Boolean).join('\n\n')
+      +'\n\nPuissance cumulée : '+totW+' W – Prix d’achat total : '+totP+' €';
+    (navigator.clipboard?navigator.clipboard.writeText(txt):Promise.reject()).then(()=>toast('Liste copiée !'),()=>toast('Copie impossible : utilise Imprimer.'));
+  };
+}
+
+/* ---------- fin d'étape ---------- */
+function showMsg(html,onclose){
+  $('msgModal').innerHTML=html;$('msgOverlay').classList.add('show');
+  $('msgModal').querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>{$('msgOverlay').classList.remove('show');if(b.dataset.close==='go'&&onclose)onclose();});
+}
+function checkDone1(){
+  if(S.done1||count1()<ROOMS.length)return;
+  S.done1=true;save();renderAll();
+  const tries=ROOMS.reduce((s,r)=>s+S.r[r.id].att,0);
+  showMsg(`<h2>🎉 La maison est bien équipée !</h2>
+   <p>Toutes les pièces respectent la norme NF C 15-100 (${tries} validation${tries>1?'s':''} au total pour ${ROOMS.length} pièces).</p>
+   <p><b>Étape 2 :</b> tu dois maintenant choisir les <b>appareils électriques</b> de chaque pièce. Chaque appareil existe en 3 versions, mais les vendeurs vantent surtout les plus gourmands… sauras-tu résister ?</p>
+   <div class="row"><button class="btn" data-close="go">Commencer l’étape 2</button><button class="btn ghost" data-close="x">Plus tard</button></div>`,startPhase2);
+}
+function startPhase2(){S.phase=2;S.sel=null;save();renderAll();toast('Étape 2 : clique sur une pièce')}
+function checkDone2(){
+  if(S.done2||count2()<ROOMS.length)return;
+  S.done2=true;save();
+  const items=listItems().filter(i=>i.type==='Appareil');
+  const totW=items.reduce((s,i)=>s+i.w,0);
+  const att=ROOMS.reduce((s,r)=>s+S.r[r.id].att2,0);
+  const minAtt=ROOMS.length;
+  showMsg(`<h2>🏆 Bravo, projet terminé !</h2>
+   <div class="kpis"><div class="kpi"><b>${items.length}</b><span>appareils choisis</span></div>
+   <div class="kpi"><b>${totW.toLocaleString('fr-FR')} W</b><span>puissance cumulée si tout fonctionne en même temps</span></div></div>
+   <p>Ouvre ta liste : tu y trouves les puissances et les durées d’utilisation pour calculer la consommation et le coût.</p>
+   <p>Nombre de validations à l’étape 2 : ${att} (le minimum possible est ${minAtt}).</p>
+   <div class="row"><button class="btn" id="seeList2">Voir ma liste complète</button><button class="btn ghost" data-close="x">Fermer</button></div>`);
+  $('seeList2').onclick=()=>{$('msgOverlay').classList.remove('show');openList();};
+}
+
+/* =====================================================================
+   ÉTAPE 3 : COMPTEUR (type Linky) ET TABLEAU ÉLECTRIQUE
+   ===================================================================== */
+const T3_SPEED=7200;   // 1 seconde réelle = 2 heures simulées (7200 s)
+// appareils « obligatoires » qui ne sont pas choisis aux étapes précédentes : [libellé, puissance W]
+const DIFFS=[
+  {id:'dAC',name:'Différentiel 30 mA type AC',rating:'40 A',obl:true},
+  {id:'dA',name:'Différentiel 30 mA type A',rating:'40 A',obl:true}
+];
+const CIRCUITS=[
+  // rangée du différentiel type AC
+  {id:'c_ecl1',diff:'dAC',name:'Éclairage séjour et cuisine',rating:'10 A',apps:[['salon','lum'],['cuisine','plan']]},
+  {id:'c_ecl2',diff:'dAC',name:'Éclairage chambres et salle de bains',rating:'10 A',apps:[['ch1','lampe'],['ch2','lampeb'],['sdb','miroir']]},
+  {id:'c_psal',diff:'dAC',name:'Prises du salon',rating:'16 A',apps:[['salon','tv']]},
+  {id:'c_pch',diff:'dAC',name:'Prises des chambres',rating:'16 A',apps:[['ch2','pc']]},
+  {id:'c_frigo',diff:'dAC',name:'Réfrigérateur / congélateur',rating:'16 A',obl:true,apps:[['cuisine','frigo']]},
+  {id:'c_chsal',diff:'dAC',name:'Chauffage du salon',rating:'16 A',apps:[['salon','chauf']]},
+  {id:'c_chch',diff:'dAC',name:'Chauffage des chambres',rating:'16 A',apps:[['ch1','rad'],['ch2','rad2']]},
+  {id:'c_seche',diff:'dAC',name:'Sèche-serviettes',rating:'16 A',apps:[['sdb','seche']]},
+  {id:'c_ce',diff:'dAC',name:'Chauffe-eau',rating:'20 A',obl:true,fixed:[['Chauffe-eau (ballon)',2200]]},
+  {id:'c_vmc',diff:'dAC',name:'VMC (ventilation)',rating:'2 A',obl:true,fixed:[['VMC',30]]},
+  {id:'c_box',diff:'dAC',name:'Box internet / réseau',rating:'2 A',obl:true,fixed:[['Box internet',15]]},
+  // rangée du différentiel type A
+  {id:'c_plaque',diff:'dA',name:'Plaque de cuisson',rating:'32 A',apps:[['cuisine','plaque']]},
+  {id:'c_ll',diff:'dA',name:'Lave-linge',rating:'20 A',apps:[['cuisine','ll']]},
+  {id:'c_four',diff:'dA',name:'Four',rating:'20 A',fixed:[['Four',2100]]},
+  {id:'c_lv',diff:'dA',name:'Lave-vaisselle',rating:'20 A',fixed:[['Lave-vaisselle',1800]]}
+];
+function t3Items(c){
+  const out=[];
+  (c.apps||[]).forEach(([rid,aid])=>{
+    const r=ROOM[rid],a=r.appliances.find(x=>x.id===aid),st=S.r[rid];
+    const cid=st.locked[aid]||st.picks[aid];const ch=cid?a.choices.find(x=>x.id===cid):null;
+    if(ch)out.push({label:a.label+' ('+r.name.replace(/ \(.*\)/,'')+') : '+ch.name,w:ch.w});
+    else out.push({label:a.label+' ('+r.name.replace(/ \(.*\)/,'')+') : non choisi, non branché',w:0});
+  });
+  (c.fixed||[]).forEach(([l,w])=>out.push({label:l,w}));
+  return out;
+}
+const t3Watts=c=>t3Items(c).reduce((s,i)=>s+i.w,0);
+const t3Powered=c=>!!(S.t3.on.main&&S.t3.on[c.diff]&&S.t3.on[c.id]);
+const t3Power=()=>CIRCUITS.reduce((s,c)=>s+(t3Powered(c)?t3Watts(c):0),0);
+let t3Screen=0;
+const T3_SCREENS=['ÉNERGIE CONSOMMÉE','PUISSANCE APPELÉE','PUISSANCE SOUSCRITE'];
+
+function build3(){
+  const brk=(id,name,rating,extra)=>`<button class="brk ${extra||''}" data-b="${id}"><span class="sw"><i></i></span><b>${name}</b><small>${rating}</small><span class="w"></span></button>`;
+  let h=`<div>
+    <h2>⏱️ Le compteur</h2>
+    <p class="help">Compteur de type Linky. 1 seconde réelle = 2 heures simulées. Les boutons du tableau sont tous éteints.</p>
+    <div class="meter">
+      <div class="mtop"><span class="mlogo">Linky</span><span class="mtag">compteur communicant</span></div>
+      <div class="lcd">
+        <div class="lcd-top"><span id="lcdLabel"></span><span id="lcdClock"></span></div>
+        <div class="lcd-main"><span class="digits"><span class="ghost" id="lcdGhost"></span><span class="val" id="lcdVal"></span></span><span class="lcd-unit" id="lcdUnit"></span></div>
+        <div class="lcd-sub"><span id="lcdSub1"></span><span id="lcdSub2"></span></div>
+      </div>
+      <div class="mctl">
+        <button class="mbtn" id="mMinus" title="Écran précédent">−</button>
+        <button class="mbtn" id="mPlus" title="Écran suivant">+</button>
+        <div class="mleds"><span><i class="led conso" id="ledConso"></i>consommation</span><span><i class="led comm"></i>communication</span></div>
+      </div>
+      <div class="mfoot"><span>230 V ~ 50 Hz</span><span>Abonnement 9 kVA</span></div>
+    </div>
+    <div class="sim">
+      <button class="btn ghost" id="t3Pause">⏸ Pause</button>
+      <button class="btn ghost" id="t3Zero">↺ Compteur à zéro</button>
+      <button class="btn ghost" id="t3Off">⏻ Tout éteindre</button>
+    </div>
+  </div>
+  <div>
+    <h2>🔌 Le tableau électrique</h2>
+    <p class="help">Un disjoncteur par circuit : lève le bouton pour l’allumer. Survole un bouton pour voir les appareils qu’il alimente.</p>
+    <div class="board">
+      <div class="board-title"><span>TABLEAU ÉLECTRIQUE</span><span id="boardPower"></span></div>
+      <div class="rail"><div class="brks">${brk('main','Disjoncteur de branchement','45 A · 9 kVA','main')}</div></div>`;
+  DIFFS.forEach(d=>{
+    h+=`<div class="rail"><h3>${d.name} <small>· ${d.rating}</small></h3><div class="brks">${brk(d.id,d.name,d.rating)}`;
+    CIRCUITS.filter(c=>c.diff===d.id).forEach(c=>{h+=brk(c.id,c.name+(c.obl?' <span class="tag">obligatoire</span>':''),c.rating);});
+    h+=`</div></div>`;
+  });
+  h+=`</div></div>`;
+  $('view3').innerHTML=h;
+  $('view3').querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>{
+    const id=b.dataset.b;S.t3.on[id]=!S.t3.on[id];save();update3();
+  });
+  $('mPlus').onclick=()=>{t3Screen=(t3Screen+1)%T3_SCREENS.length;update3()};
+  $('mMinus').onclick=()=>{t3Screen=(t3Screen+T3_SCREENS.length-1)%T3_SCREENS.length;update3()};
+  $('t3Pause').onclick=()=>{S.t3.paused=!S.t3.paused;save();update3()};
+  $('t3Zero').onclick=()=>{S.t3.wh=0;S.t3.min=0;save();update3()};
+  $('t3Off').onclick=()=>{S.t3.on={};save();update3()};
+}
+const fmtKwh=wh=>{const v=(wh/1000).toFixed(3).split('.');return v[0].padStart(6,'0')+','+v[1]};
+function update3(){
+  if(!$('lcdVal'))return;
+  const P=t3Power();
+  // tableau
+  document.querySelectorAll('#view3 [data-b]').forEach(b=>{
+    const id=b.dataset.b,on=!!S.t3.on[id];
+    let powered=on,wtxt='',tip='';
+    if(id==='main'){powered=on;}
+    else if(id==='dAC'||id==='dA'){powered=on&&!!S.t3.on.main;}
+    else{
+      const c=CIRCUITS.find(x=>x.id===id),items=t3Items(c),w=t3Watts(c);
+      powered=t3Powered(c);wtxt=(w===0&&!c.fixed)?'non branché':w.toLocaleString('fr-FR')+' W';
+      tip=items.map(i=>'• '+i.label+' – '+i.w.toLocaleString('fr-FR')+' W').join('\n');
+    }
+    b.classList.toggle('on',on);
+    b.classList.toggle('nopow',on&&!powered);
+    b.classList.toggle('live',powered&&id!=='main'&&id!=='dAC'&&id!=='dA');
+    b.querySelector('.w').textContent=wtxt;
+    b.title=tip||(on?'Allumé':'Éteint');
+  });
+  $('boardPower').textContent='Puissance appelée : '+P.toLocaleString('fr-FR')+' W';
+  // compteur
+  const m=S.t3.min,day=Math.floor(m/1440)+1,hh=Math.floor((m%1440)/60),mm=Math.floor(m%60);
+  $('lcdClock').textContent='J'+day+' · '+String(hh).padStart(2,'0')+':'+String(mm).padStart(2,'0');
+  $('lcdLabel').textContent=T3_SCREENS[t3Screen];
+  let val,unit,ghost;
+  if(t3Screen===0){val=fmtKwh(S.t3.wh);unit='kWh';ghost='888888,888';}
+  else if(t3Screen===1){val=String(P).padStart(5,'0');unit='W';ghost='88888';}
+  else{val='09000';unit='VA';ghost='88888';}
+  $('lcdVal').textContent=val;$('lcdGhost').textContent=ghost;$('lcdUnit').textContent=unit;
+  $('lcdSub1').textContent='P : '+P.toLocaleString('fr-FR')+' W';
+  $('lcdSub2').textContent=S.t3.paused?'⏸ PAUSE':'▶ 1 s = 2 h';
+  $('t3Pause').textContent=S.t3.paused?'▶ Reprendre':'⏸ Pause';
+  const led=$('ledConso');
+  led.classList.toggle('on',P>0&&!S.t3.paused);
+  led.style.animationDuration=Math.max(.12,Math.min(4,1200/Math.max(P,1)))+'s';
+}
+let t3Last=null,t3SaveAt=0;
+setInterval(()=>{
+  const now=performance.now();
+  if(S.phase!==3||S.t3.paused){t3Last=null;return;}
+  if(t3Last===null){t3Last=now;return;}
+  const dt=Math.min(.5,(now-t3Last)/1000);t3Last=now;
+  S.t3.min+=dt*T3_SPEED/60;                       // minutes simulées
+  S.t3.wh+=t3Power()*dt*T3_SPEED/3600;            // énergie en Wh
+  update3();
+  if(now-t3SaveAt>2000){t3SaveAt=now;save();}
+},100);
+build3();
+$('chip3').onclick=()=>{S.phase=3;save();renderAll()};
+
+/* ---------- boutons d'en-tête ---------- */
+$('btnList').onclick=openList;
+$('togL').onclick=()=>{hideL=!hideL;renderAll()};
+$('togR').onclick=()=>{hideR=!hideR;renderAll()};
+$('listOverlay').addEventListener('click',e=>{if(e.target.id==='listOverlay')$('listOverlay').classList.remove('show')});
+$('chip1').onclick=()=>{S.phase=1;save();renderAll()};
+$('chip2').onclick=()=>{S.phase=2;save();renderAll()};
+$('btnReset').onclick=()=>{
+  showMsg(`<h2>Recommencer ?</h2><p>Toute ta progression (équipements, appareils, liste) sera effacée.</p>
+   <div class="row"><button class="btn" style="background:#dc2626" data-close="go">Oui, tout effacer</button><button class="btn ghost" data-close="x">Annuler</button></div>`,
+   ()=>{S=freshState();save();renderAll();toast('Progression effacée')});
+};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){$('listOverlay').classList.remove('show');$('msgOverlay').classList.remove('show')}});
+
+init3D();
+renderAll();
+</script>
+</body>
+</html>
